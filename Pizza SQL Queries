@@ -1,0 +1,67 @@
+-- what is the most expensive pizza?
+select top 3 pizza_type_ID, Max(price) as Most_Expensive
+from dbo.pizzas$
+group by pizza_type_id
+order by Most_Expensive desc
+
+-- what is the least expensive pizza? 
+select top 3 pizza_type_ID, min(price) as Least_Expensive
+from dbo.pizzas$
+group by pizza_type_id
+order by Least_Expensive asc
+
+-- which pizza has the sold the most? 
+select top 3 pizza_id, sum(quantity) as 'Total Units Sold'
+from order_details$
+group by pizza_id
+order by 'Total Units Sold' desc
+
+-- which pizza has the least units sold?
+select top 3 pizza_id, sum(quantity) as 'Total Units Sold'
+from order_details$
+group by pizza_id
+order by 'Total Units Sold' asc
+
+- how many different types of pizzas are offered? How many categories? 
+select category, count(distinct pizza_type_ID) as 'Unique Pizzas'
+from pizza_types$
+group by category
+order by 'Unique Pizzas' desc
+
+--how many pizzas don't have cheese listed as an ingredient 
+select count(name)
+from pizza_types$
+where ingredients not like '%cheese%'
+
+-- what day has the highest number of sales? 
+select top 5 sum(o.quantity) as 'Total Quantity', orders$.date, sum(Pizzas$.price) as 'Total Sold'
+from dbo.order_details$ as o
+inner join orders$ on o.order_ID = orders$.order_ID
+inner join pizzas$ on o.pizza_ID = pizzas$.pizza_ID
+group by date
+order by 'Total Sold' desc
+
+-- how much did each order cost? 
+
+WITH Order_Price 
+as (
+	select OD.order_ID, OD.pizza_ID, OD.quantity, P.price
+	FROM dbo.order_details$ as OD 
+	Inner Join dbo.pizzas$ as P on p.pizza_ID = od.Pizza_ID)
+	Select order_id, sum(quantity * price) as OrderCost
+	From Order_Price 
+	group by order_id
+order by order_id asc
+
+-- what is the maximum spent on an order? 
+	
+WITH Order_Price 
+as (
+	select OD.order_ID, OD.pizza_ID, OD.quantity, P.price
+	FROM dbo.order_details$ as OD 
+	Inner Join dbo.pizzas$ as P on p.pizza_ID = od.Pizza_ID)
+	Select order_id, sum(quantity * price) as OrderCost
+	From Order_Price 
+	group by order_id
+order by OrderCost desc
+
